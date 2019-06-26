@@ -10,6 +10,7 @@ import (
 func main() {
 	router := gin.Default()
 	router.POST("/longin",user.Login)
+	router.POST("/register",user.Register)
 	router.Run(":8000")
 }
 

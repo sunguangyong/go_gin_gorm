@@ -1,8 +1,12 @@
 package user
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http")
+	"fubangyun.com/basearch/gin/go_gin_gorm/models"
+
+	"net/http"
+)
 
 type LoginJson struct{
 	User string `from:"user" json:"user" xml:"user" binding:"required"`
@@ -21,5 +25,20 @@ func Login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"status":"you are logged in"})
 
+
+}
+
+func Register(c *gin.Context) {
+	var login_json LoginJson
+	if err := c.ShouldBind(&login_json); err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Register information is not complete"})
+		return
+	}
+	username := login_json.User
+	password := login_json.PassWord
+	fmt.Println(username,password)
+	err := models.AddOnePassport(username, password)
+	fmt.Println(err)
+	c.JSON(http.StatusOK, gin.H{"status":"you are logged in"})
 
 }
