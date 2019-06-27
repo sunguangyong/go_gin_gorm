@@ -1,9 +1,8 @@
 package user
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
 	"fubangyun.com/basearch/gin/go_gin_gorm/models"
+	"github.com/gin-gonic/gin"
 
 	"net/http"
 )
@@ -19,13 +18,20 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Login information is not complete"})
 		return
 	}
-	if login_json.User != "manna" || login_json.PassWord != "123456"{
-		c.JSON(http.StatusRequestedRangeNotSatisfiable, gin.H{"status":"unauthorized"})
+
+	err,user := models.Mydb.GetOnePassport(login_json.User)
+	if err != nil{
+		c.JSON(http.StatusRequestedRangeNotSatisfiable, gin.H{"status":err})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status":"you are logged in"})
-
-
+	if len(user) == 0{
+		c.JSON(http.StatusRequestedRangeNotSatisfiable, gin.H{"status" : "The account does not exist"})
+		return
+	}
+	if user[0].PassWord == login_json.PassWord {
+		c.JSON(http.StatusRequestedRangeNotSatisfiable, gin.H{"status" : "login successfully"})
+		return
+	}
 }
 
 func Register(c *gin.Context) {
@@ -36,9 +42,16 @@ func Register(c *gin.Context) {
 	}
 	username := login_json.User
 	password := login_json.PassWord
-	fmt.Println(username,password)
-	err := models.AddOnePassport(username, password)
-	fmt.Println(err)
-	c.JSON(http.StatusOK, gin.H{"status":"you are logged in"})
+	err, user := models.Mydb.GetOnePassport(username)
+	if len(user) != 0{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Account already exists"})
+	} else {
+		err = models.Mydb.AddOnePassport(username, password)
+		if err == nil{
+			c.JSON(http.StatusOK, gin.H{"status":"registered successfully"})
+		}else {
+			c.JSON(http.StatusOK, gin.H{"status": err})
+		}
 
+	}
 }
