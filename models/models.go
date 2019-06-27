@@ -62,7 +62,7 @@ func (d *DB) Create() {
 
 func (d *DB) AddOnePassport(username, password string) (err error){
 	user := &UserInfo{
-		UserName  : username,
+		UserName  : username,   // 建表时会把表名或字段名的驼峰命名改为下划线
 		PassWord  : password,
 		CreatedAt : time.Now(),
 		UpdatedAt : time.Now(),
